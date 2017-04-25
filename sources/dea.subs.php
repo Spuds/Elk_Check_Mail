@@ -221,7 +221,8 @@ function dea_validate_email($email)
 
 	// Get the email domain, build the api request
 	$valid = true;
-	$email = array_pop(explode('@', $email));
+	$email_parts = explode('@', $email);
+	$email = array_pop($email_parts);
 	$url = 'http://check.block-disposable-email.com/easyapi/json/' . $modSettings['dea_key'] . '/' . trim($email);
 
 	// Make the request
