@@ -8,7 +8,7 @@
  * version 1.1 (the "License"). You can obtain a copy of the License at
  * http://mozilla.org/MPL/1.1/.
  *
- * @version 1.0.1
+ * @version 1.0.2
  *
  */
 
@@ -68,7 +68,7 @@ function imrs_dea(&$config_vars)
 
 	// Set / check status of the api key
 	$status = $txt['not_applicable'];
-	if (!empty($modSettings['dea_key']) && !empty($modSettings['dea_enabled']))
+	if (!empty($modSettings['dea_key']))
 	{
 		$url = 'http://status.block-disposable-email.com/status/?apikey=' . $modSettings['dea_key'];
 		$status = dea_status($url);
@@ -92,7 +92,8 @@ function imrs_dea(&$config_vars)
 		'',
 		array('check', 'dea_enabled', 'postinput' => $txt['dea_desc']),
 		array('text', 'dea_key', 'size' => 40),
-		array('text', 'dea_status', 'value' => $status, 'disabled' => true, 'size' => 80)
+		array('text', 'dea_status', 'value' => $status, 'disabled' => true, 'size' => 80),
+		''
 	);
 
 	$config_vars = elk_array_insert($config_vars, 4, $add);
@@ -102,9 +103,26 @@ function imrs_dea(&$config_vars)
  * Save dea values as set in the manage registration form
  *
  * - integrate_save_registration_settings called from ManageRegistration_controller
- *
  */
 function isrs_dea()
+{
+	$elkarte_version = substr(FORUM_VERSION, 8, 3);
+
+	// Based on the version, dispatch to the right handler
+	if ($elkarte_version === '1.1')
+	{
+		isrs_dea_for_11();
+	}
+	else
+	{
+		isrs_dea_for_10();
+	}
+}
+
+/**
+ * Save dea values as set in the manage registration form for 1.0.x installs
+ */
+function isrs_dea_for_10()
 {
 	// Nothing to check
 	if (empty($_POST['dea_enabled']))
@@ -127,6 +145,38 @@ function isrs_dea()
 		if ($status->request_status !== 'ok' || $status->apikeystatus !== 'active')
 		{
 			unset($_POST['dea_enabled']);
+		}
+	}
+}
+
+/**
+ * Save dea values as set in the manage registration form for 1.1.x installs
+ */
+function isrs_dea_for_11()
+{
+	$req = HttpReq::instance();
+
+	// Nothing to check
+	if (empty($req->post->dea_enabled))
+	{
+		return;
+	}
+
+	// No key, no addon
+	if (empty($req->post->dea_key))
+	{
+		unset($req->post->dea_enabled);
+	}
+	// Is the key valid?
+	else
+	{
+		$url = 'http://status.block-disposable-email.com/status/?apikey=' . $_POST['dea_key'];
+		$status = dea_status($url);
+
+		// Key or request is not valid, lets not enable the addon
+		if ($status->request_status !== 'ok' || $status->apikeystatus !== 'active')
+		{
+			unset($req->post->dea_enabled);
 		}
 	}
 }
@@ -188,6 +238,12 @@ function ilpf_dea(&$profile_fields)
 function dea_status($url)
 {
 	$status = '';
+
+	// No Curl, no dice
+	if (!function_exists('curl_init'))
+	{
+		return (object) array('request_status' => 'fail', 'apikeystatus' => 'PHP Curl must be installed.');
+	}
 
 	// Include the Curl_Fetch_Webdata class.
 	require_once(SOURCEDIR . '/CurlFetchWebdata.class.php');
