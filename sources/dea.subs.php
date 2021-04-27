@@ -3,7 +3,7 @@
 /**
  * @package Dea
  * @author Spuds
- * @copyright (c) 2016 Spuds
+ * @copyright (c) 2016-2021 Spuds
  * @license This Source Code is subject to the terms of the Mozilla Public License
  * version 1.1 (the "License"). You can obtain a copy of the License at
  * http://mozilla.org/MPL/1.1/.
@@ -12,18 +12,13 @@
  *
  */
 
-if (!defined('ELK'))
-{
-	die('No access...');
-}
-
 /**
  * Makes an API request to the DEA service to validate an email
  *
  * - integrate_register_check, called from members.subs
  * - Adds additional registration checks in place, here DEA checking
  *
- * @param mixed[] $regOptions
+ * @param array $regOptions
  * @param object $reg_errors
  */
 function irc_dea(&$regOptions, &$reg_errors)
@@ -70,7 +65,7 @@ function imrs_dea(&$config_vars)
 	$status = $txt['not_applicable'];
 	if (!empty($modSettings['dea_key']))
 	{
-		$url = 'http://status.block-disposable-email.com/status/?apikey=' . $modSettings['dea_key'];
+		$url = 'https://status.block-disposable-email.com/status/?apikey=' . $modSettings['dea_key'];
 		$status = dea_status($url);
 
 		if ($status->request_status !== 'ok' || $status->apikeystatus !== 'active')
@@ -138,7 +133,7 @@ function isrs_dea_for_10()
 	// Is the key valid?
 	else
 	{
-		$url = 'http://status.block-disposable-email.com/status/?apikey=' . $_POST['dea_key'];
+		$url = 'https://status.block-disposable-email.com/status/?apikey=' . $_POST['dea_key'];
 		$status = dea_status($url);
 
 		// Key or request is not valid, lets not enable the addon
@@ -170,7 +165,7 @@ function isrs_dea_for_11()
 	// Is the key valid?
 	else
 	{
-		$url = 'http://status.block-disposable-email.com/status/?apikey=' . $_POST['dea_key'];
+		$url = 'https://status.block-disposable-email.com/status/?apikey=' . $_POST['dea_key'];
 		$status = dea_status($url);
 
 		// Key or request is not valid, lets not enable the addon
@@ -224,8 +219,6 @@ function ilpf_dea(&$profile_fields)
 
 		return $isValid;
 	');
-
-	return;
 }
 
 /**
@@ -276,10 +269,9 @@ function dea_validate_email($email)
 	require_once(SOURCEDIR . '/CurlFetchWebdata.class.php');
 
 	// Get the email domain, build the api request
-	$valid = true;
 	$email_parts = explode('@', $email);
 	$email = array_pop($email_parts);
-	$url = 'http://check.block-disposable-email.com/easyapi/json/' . $modSettings['dea_key'] . '/' . trim($email);
+	$url = 'https://check.block-disposable-email.com/easyapi/json/' . $modSettings['dea_key'] . '/' . trim($email);
 
 	// Make the request
 	$fetch_data = new Curl_Fetch_Webdata();
@@ -292,9 +284,9 @@ function dea_validate_email($email)
 
 		if ($dea->domain_status === 'block')
 		{
-			$valid = false;
+			return false;
 		}
 	}
 
-	return $valid;
+	return true;
 }
