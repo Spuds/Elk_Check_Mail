@@ -1,46 +1,46 @@
 <?xml version="1.0"?>
-<!DOCTYPE package-info SYSTEM "http://www.elkarte.net/site/package-info">
-<package-info xmlns="http://www.elkarte.net/site/package-info" xmlns:elk="http://www.elkarte.net/">
-	<id>spuds:dea</id>
+<!DOCTYPE package-info SYSTEM "https://www.elkarte.net/site/package-info">
+<package-info xmlns="https://www.elkarte.net/site/package-info" xmlns:elk="https://www.elkarte.net/">
+	<id>spuds:checkmail</id>
 	<name>Disposable Email Check</name>
-	<version>1.0.2</version>
+	<version>1.0.0</version>
 	<type>addon</type>
 	<license><![CDATA[
 /**
- * DEA : Disposable Email Address Check
+ * Email Address Check
  *
  * @author spuds
  * @license MPL 1.1 http://mozilla.org/MPL/1.1/
  *
- * @version 1.0.2
+ * @version 1.0.0
  */
 ]]></license>
-	<install for="1.0 - 1.1.99">
+	<install for="1.1 - 1.1.99">
 		<readme parsebbc="true">readme.txt</readme>
 		<license type="inline">This ElkArte addon is released under a MPL V1.1 license, a copy of it with its provisions is included with the package.</license>
 
-		<require-file name="languages/dea.english.php" destination="LANGUAGEDIR/english">The language strings</require-file>
-		<require-file name="languages/dea.french.php" destination="LANGUAGEDIR/french" />
+		<require-file name="languages/checkmail.english.php" destination="LANGUAGEDIR/english">The language strings</require-file>
+		<require-file name="languages/checkmail.french.php" destination="LANGUAGEDIR/french" />
 
-		<require-file name="sources/dea.subs.php" destination="SUBSDIR">Support functions for DEA</require-file>
+		<require-file name="sources/checkmail.subs.php" destination="SUBSDIR">Support functions for Mail Check</require-file>
 
-		<hook hook="integrate_register_check" file="SUBSDIR/dea.subs.php" function="irc_dea" />
-		<hook hook="integrate_modify_registration_settings" file="SUBSDIR/dea.subs.php" function="imrs_dea" />
-		<hook hook="integrate_save_registration_settings" file="SUBSDIR/dea.subs.php" function="isrs_dea" />
-		<hook hook="integrate_load_profile_fields" file="SUBSDIR/dea.subs.php" function="ilpf_dea" />
+		<hook hook="integrate_register_check" file="SUBSDIR/checkmail.subs.php" function="irc_check_mail" />
+		<hook hook="integrate_modify_registration_settings" file="SUBSDIR/checkmail.subs.php" function="imrs_check_mail" />
+		<hook hook="integrate_save_registration_settings" file="SUBSDIR/checkmail.subs.php" function="isrs_check_mail" />
+		<hook hook="integrate_load_profile_fields" file="SUBSDIR/checkmail.subs.php" function="ilpf_check_mail" />
 
 		<redirect url="?action=admin;area=regcenter;sa=settings;" timeout="5000" />
 	</install>
 
-	<uninstall for="1.0 - 1.1.99">
-		<hook reverse="true" hook="integrate_register_check" file="SUBSDIR/dea.subs.php" function="irc_dea" />
-		<hook reverse="true" hook="integrate_modify_registration_settings" file="SUBSDIR/dea.subs.php" function="imrs_dea" />
-		<hook reverse="true" hook="integrate_save_registration_settings" file="SUBSDIR/dea.subs.php" function="isrs_dea" />
-		<hook reverse="true" hook="integrate_load_profile_fields" file="SUBSDIR/dea.subs.php" function="ilpf_dea" />
+	<uninstall for="1.1 - 1.1.99">
+		<hook reverse="true" hook="integrate_register_check" file="SUBSDIR/checkmail.subs.php" function="irc_check_mail" />
+		<hook reverse="true" hook="integrate_modify_registration_settings" file="SUBSDIR/checkmail.subs.php" function="imrs_check_mail" />
+		<hook reverse="true" hook="integrate_save_registration_settings" file="SUBSDIR/checkmail.subs.php" function="isrs_check_mail" />
+		<hook reverse="true" hook="integrate_load_profile_fields" file="SUBSDIR/checkmail.subs.php" function="ilpf_check_mail" />
 
-		<remove-file name="LANGUAGEDIR/english/dea.english.php" />
-		<remove-file name="LANGUAGEDIR/french/dea.french.php" />
-		<remove-file name="SUBSDIR/dea.subs.php" />
+		<remove-file name="LANGUAGEDIR/english/checkmail.english.php" />
+		<remove-file name="LANGUAGEDIR/french/checkmail.french.php" />
+		<remove-file name="SUBSDIR/checkmail.subs.php" />
 
 		<redirect url="?action=admin;area=packages;sa=browse" timeout="5000" />
 	</uninstall>
