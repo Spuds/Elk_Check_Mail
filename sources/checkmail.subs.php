@@ -41,10 +41,10 @@ function irc_check_mail($regOptions, $reg_errors)
 	$valid = check_mail_validate_email($regOptions['email']);
 
 	// If its does not meet the requirements set an error
-	if ($valid === false)
+	if ($valid !== true)
 	{
-		loadLanguage('check_mail');
-		$reg_errors->addError('check_mail_error_email');
+		loadLanguage('checkmail');
+		$reg_errors->addError('check_mail_error_email_' . $valid);
 	}
 }
 
@@ -59,7 +59,7 @@ function imrs_check_mail(&$config_vars)
 {
 	global $modSettings, $txt;
 
-	loadLanguage('check_mail');
+	loadLanguage('checkmail');
 
 	// Check if the api key works.
 	$status = $txt['not_applicable'];
@@ -67,7 +67,7 @@ function imrs_check_mail(&$config_vars)
 	// Entering the ACP, lets check the key if we have one and the addon is enabled.
 	if (!empty($modSettings['check_mail_key']))
 	{
-		$url = 'https://check-mail.p.rapidapi.com/?domain=mailinator.com';
+		$url = 'https://mailcheck.p.rapidapi.com/?domain=mailinator.com';
 		$status = check_mail_status($url);
 
 		if ($status->request_status !== 'ok')
@@ -121,7 +121,7 @@ function isrs_check_mail()
 	else
 	{
 		updateSettings(['check_mail_key' => $check_mail_key]);
-		$url = 'https://check-mail.p.rapidapi.com/?domain=mailinator.com';
+		$url = 'https://mailcheck.p.rapidapi.com/?domain=mailinator.com';
 		$status = check_mail_status($url);
 
 		// Key or request is not valid, lets not enable the addon
@@ -158,10 +158,10 @@ function ilpf_check_mail(&$profile_fields)
 		if ($isValid === true && !empty($modSettings['check_mail_enabled']))
 		{
 			$isValid = check_mail_validate_email($value);
-			if ($isValid === false)
+			if ($isValid !== true)
 			{
-				loadLanguage('check_mail');
-				$isValid = 'check_mail_email';
+				loadLanguage('checkmail');
+				$isValid = 'check_mail_email_' . $isValid;
 			}
 		}
 
@@ -228,7 +228,7 @@ function check_mail_status($url)
  *
  * @param string $email
  *
- * @return bool
+ * @return bool|string
  */
 function check_mail_validate_email($email)
 {
@@ -240,7 +240,7 @@ function check_mail_validate_email($email)
 	$email = $email_parts[1] ?? '';
 
 	// Setup for a check
-	$url = 'https://check-mail.p.rapidapi.com/?domain=' . trim($email);
+	$url = 'https://mailcheck.p.rapidapi.com/?domain=' . trim($email);
 	$options = setOptions();
 
 	// Make the request
@@ -263,9 +263,14 @@ function check_mail_validate_email($email)
 		//   "mx_info": "Using MX pointer mail57.nypato.com from DNS with priority: 5",
 		//   "mx_ip": "109.236.80.110",
 		//   "last_changed_at": "2020-06-11T09:56:02+02:00"
+		if ($check_mail->valid === false)
+		{
+			return 'invalid';
+		}
+
 		if ($check_mail->block === true)
 		{
-			return false;
+			return 'dea';
 		}
 	}
 
@@ -289,7 +294,7 @@ function setOptions()
 		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 		CURLOPT_CUSTOMREQUEST => 'GET',
 		CURLOPT_HTTPHEADER => [
-			'x-rapidapi-host: check-mail.p.rapidapi.com',
+			'x-rapidapi-host: mailcheck.p.rapidapi.com',
 			'x-rapidapi-key: ' . $modSettings['check_mail_key']
 		],
 	];
